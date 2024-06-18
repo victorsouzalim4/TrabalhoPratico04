@@ -1,10 +1,10 @@
-package QuestoesJava.Questao02;
+package QuestoesJava.Questao04;
+
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 
 //classes
-
 
 class DateTime {
     private String day;
@@ -163,7 +163,8 @@ class Personagem {
     private String hairColour;
     private Boolean wizard;
 
-    public Personagem(String id, String name, ListaApelidos alternate_names, String house, String ancestry, String species,
+    public Personagem(String id, String name, ListaApelidos alternate_names, String house, String ancestry,
+            String species,
             String patronus, Boolean hogwartsStaff, Boolean hogwartsStudent, String actorName, Boolean alive,
             DateTime dateOfBirth, int yearOfBirth, String eyeColour, String gender, String hairColour, Boolean wizard) {
         this.id = id;
@@ -327,7 +328,7 @@ class Personagem {
 
     public void imprime() {
 
-        System.out.print( id + " ## " + name + " ## ");
+        System.out.print(id + " ## " + name + " ## ");
         alternate_names.mostra();
         System.out.print(house + " ## " + ancestry + " ## " + species + " ## " + patronus + " ## ");
         System.out.print(hogwartsStaff + " ## ");
@@ -343,237 +344,253 @@ class Personagem {
     public Personagem clone(Personagem personagem) {
 
         Personagem clone = new Personagem(
-            personagem.getId(),
-            personagem.getName(),
-            personagem.getAlternate_names(),
-            personagem.getHouse(),
-            personagem.getAncestry(),
-            personagem.getSpecies(),
-            personagem.getPatronus(),
-            personagem.getHogwartsStaff(),
-            personagem.getHogwartsStudent(),
-            personagem.getActorName(),
-            personagem.getAlive(),
-            personagem.getDateOfBirth(),
-            personagem.getYearOfBirth(),
-            personagem.getEyeColour(),
-            personagem.getGender(),
-            personagem.getHairColour(),
-            personagem.getWizard()
-        );
+                personagem.getId(),
+                personagem.getName(),
+                personagem.getAlternate_names(),
+                personagem.getHouse(),
+                personagem.getAncestry(),
+                personagem.getSpecies(),
+                personagem.getPatronus(),
+                personagem.getHogwartsStaff(),
+                personagem.getHogwartsStudent(),
+                personagem.getActorName(),
+                personagem.getAlive(),
+                personagem.getDateOfBirth(),
+                personagem.getYearOfBirth(),
+                personagem.getEyeColour(),
+                personagem.getGender(),
+                personagem.getHairColour(),
+                personagem.getWizard());
 
         return clone;
     }
 }
 
-class NoFilho{
+class No {
     Personagem personagem;
-    NoFilho esq, dir;
+    No esq, dir;
+    boolean cor;
 
-    NoFilho(Personagem personagem){
+    No(Personagem personagem) {
         this.personagem = personagem;
         esq = dir = null;
+        this.cor = true;
     }
 
 }
 
-class No{
-    int elemento;
-    No esq, dir;
-    NoFilho raizFilho;
-
-    No(int x){
-        this.elemento = x % 15;
-        esq = dir = null;
-        raizFilho = null;
-    }
-}
-
-class Arvore{
+class Arvore {
     No raiz;
 
-    Arvore(){
-        raiz = null; 
+    Arvore() {
+        raiz = null;
     }
 
-    public void inserir(int x){
-        raiz = inserir(raiz, x);
+    public void inserir(Personagem personagem) {
+        if (raiz == null) {
+            raiz = new No(personagem);
+        } else if (raiz.dir == null && raiz.esq == null) {
+            if (compare(personagem, raiz.personagem) < 0) {
+                raiz.esq = new No(personagem);
+            } else {
+                raiz.dir = new No(personagem);
+            }
+        } else if (raiz.esq == null) {
+            if (compare(personagem, raiz.personagem) < 0) {
+                raiz.esq = new No(personagem);
+            } else if (compare(personagem, raiz.dir.personagem) < 0) {
+                raiz.esq = new No(raiz.personagem);
+                raiz.personagem = personagem;
+            } else {
+                raiz.esq = new No(raiz.personagem);
+                raiz.personagem = raiz.dir.personagem;
+                raiz.dir.personagem = personagem;
+            }
+
+            raiz.esq.cor = raiz.dir.cor = false;
+        } else if (raiz.dir == null) {
+            if (compare(personagem, raiz.personagem) > 0) {
+                raiz.dir = new No(personagem);
+            } else if (compare(personagem, raiz.esq.personagem) > 0) {
+                raiz.dir = new No(raiz.personagem);
+                raiz.personagem = personagem;
+            } else {
+                raiz.dir = new No(raiz.personagem);
+                raiz.personagem = raiz.esq.personagem;
+                raiz.esq.personagem = personagem;
+            }
+        } else {
+            inserir(personagem, null, null, null, raiz);
+        }
+        raiz.cor = false;
     }
 
-    public void inserirPersonagem(Personagem personagem){
-        int place = personagem.getYearOfBirth() % 15;
-        inserirPersonagem(raiz, personagem, place);
+    private void inserir(Personagem personagem, No bisAvo, No avo, No pai, No i) {
+        if (i == null) {
+            if (compare(personagem, pai.personagem) < 0) {
+                i = pai.esq = new No(personagem);
+            } else {
+                i = pai.dir = new No(personagem);
+            }
+
+            if (pai.cor == true) {
+                balancear(bisAvo, avo, pai, i);
+            }
+        } else {
+            is4No(bisAvo, avo, pai, i);
+
+            if (compare(personagem, i.personagem) < 0) {
+                inserir(personagem, avo, pai, i, i.esq);
+            } else if (compare(personagem, i.personagem) > 0) {
+                inserir(personagem, avo, pai, i, i.dir);
+            } else {
+                System.out.println("Erro, elemento repetido");
+            }
+        }
     }
 
-    public void caminharCentral(){
+    public void caminharCentral() {
         caminharCentral(raiz);
     }
 
-    public void pesquisa(String nome){
-        boolean flag;
+    public void pesquisa(String nome) {
         System.out.print(nome + " => raiz");
-        flag = pesquisa(raiz, nome);
-        if(flag){
+        pesquisa(raiz, nome);
+    }
+
+    private void pesquisa(No i, String nome) {
+        if (i == null) {
             System.out.println(" NAO");
-        }else{
+        } else if (compare(nome, i.personagem) > 0) {
+            System.out.print(" dir");
+            pesquisa(i.dir, nome);
+        } else if (compare(nome, i.personagem) < 0) {
+            System.out.print(" esq");
+            pesquisa(i.esq, nome);
+        } else {
             System.out.println(" SIM");
         }
-    }
-
-    public void mostra(){
-        mostra(raiz);
-    }
-
-    private No inserir(No i, int x){
-        if(i == null){
-            i = new No(x);
-        }else if(x > i.elemento){
-            i.dir = inserir(i.dir, x);
-        }else if(x < i.elemento){
-            i.esq = inserir(i.esq, x);
-        }else{
-            System.out.println("Erro ao inserir");
-        }
-
-        return i;
-    }
-
-    private void inserirPersonagem(No i, Personagem personagem, int place){
-        if(i == null){
-            System.out.println("ERRO ao inserir personagem");
-        }else if(place > i.elemento){
-            inserirPersonagem(i.dir, personagem, place);
-        }else if(place < i.elemento){
-            inserirPersonagem(i.esq, personagem, place);
-        }else{
-            i.raizFilho = insercao(i.raizFilho, personagem);
-        }
-    }
-
-    private NoFilho insercao(NoFilho i, Personagem personagem){
-        if(i == null){
-            i = new NoFilho(personagem);
-        }else if(compare(personagem, i.personagem) > 0){
-            i.dir = insercao(i.dir, personagem);
-        }else if(compare(personagem, i.personagem) < 0){
-            i.esq = insercao(i.esq, personagem);
-        }else{
-            System.out.println("Erro ao inserir");
-        }
-
-        return i;
-    }
-
-    private boolean pesquisa(No i, String nome){
-        boolean flag = true;
-        if(i != null){
-            if(i.raizFilho != null){
-                flag = pesquisaNaSubArvore(i.raizFilho, nome);
-            }
-
-            if(flag){
-                System.out.print(" ESQ");
-                flag = pesquisa(i.esq, nome);
-            }
-            if(flag){
-                System.out.print(" DIR");
-                flag = pesquisa(i.dir, nome);
-            }
-        }
-
-        return flag;
-    }
-
-    private boolean pesquisaNaSubArvore(NoFilho i, String nome){
-        boolean flag;
-        if(i == null){
-            flag = true;
-        }else if(compare(nome, i.personagem) > 0){
-            System.out.print("->dir");
-            flag = pesquisaNaSubArvore(i.dir, nome);
-        }else if(compare(nome, i.personagem) < 0){
-            System.out.print("->esq");
-            flag = pesquisaNaSubArvore(i.esq, nome);
-        }else{
-            flag = false;
-        }
-
-        return flag;
     }
 
     private int compare(Personagem a, Personagem b) {
         return a.getName().compareTo(b.getName());
     }
-    
-    private int compare(String nome, Personagem a){
+
+    private int compare(String nome, Personagem a) {
         return nome.compareTo(a.getName());
     }
 
-    private void caminharCentral(No i){
-        if(i != null){
+    private void caminharCentral(No i) {
+        if (i != null) {
             caminharCentral(i.esq);
-            System.out.println(i.elemento);
+            i.personagem.imprime();
+            System.out.println();
             caminharCentral(i.dir);
         }
     }
 
-    private void mostra(No i){
-        if(i != null){
-            mostra(i.esq);
-            mostraPersonagensDoNo(i.raizFilho);
-            mostra(i.dir);
+    private void balancear(No bisAvo, No avo, No pai, No i) {
+        if (pai.cor == true) {
+            if (compare(pai.personagem, avo.personagem) > 0) {
+                if (compare(i.personagem, pai.personagem) > 0) {
+                    avo = rotacaoEsq(avo);
+                } else {
+                    avo.dir = rotacaoDir(pai);
+                    avo = rotacaoEsq(avo);
+                }
+            } else {
+                if (compare(i.personagem, pai.personagem) < 0) {
+                    avo = rotacaoDir(avo);
+                } else {
+                    avo.esq = rotacaoEsq(pai);
+                    avo = rotacaoDir(avo);
+                }
+            }
         }
+
+        if (bisAvo == null) {
+            raiz = avo;
+        } else if (compare(avo.personagem, bisAvo.personagem) < 0) {
+            bisAvo.esq = avo;
+        } else {
+            bisAvo.dir = avo;
+        }
+
+        avo.cor = false;
+
+        avo.esq.cor = avo.dir.cor = true;
     }
 
-    private void mostraPersonagensDoNo(NoFilho i){
-        if(i != null){
-            mostraPersonagensDoNo(i.esq);
-            i.personagem.imprime();
-            System.out.println();
-            mostraPersonagensDoNo(i.dir);
+    private No rotacaoDir(No i) {
+        No tmp = i.esq;
+        i.esq = tmp.dir;
+        tmp.dir = i;
+
+        return tmp;
+    }
+
+    private No rotacaoEsq(No i) {
+        No tmp = i.dir;
+        i.dir = tmp.esq;
+        tmp.esq = i;
+
+        return tmp;
+    }
+
+    private void is4No(No bisAvo, No avo, No pai, No i) {
+        if (i.esq != null && i.dir != null && i.esq.cor == true && i.dir.cor == true) {
+            i.cor = true;
+            i.esq.cor = i.dir.cor = false;
+
+            if (i == raiz) {
+                i.cor = false;
+            } else if (pai.cor == true) {
+                balancear(bisAvo, avo, pai, i);
+            }
         }
     }
 }
 
-public class ArvoreDeArvore {
+public class RedBlack {
 
-    public static int getEndOfNumber(String entrada){
+    public static int getEndOfNumber(String entrada) {
         int i;
 
-        for(i = 3; i < entrada.length() && entrada.charAt(i) != ' ' && entrada.charAt(i) != '\0'; i++);
-        
+        for (i = 3; i < entrada.length() && entrada.charAt(i) != ' ' && entrada.charAt(i) != '\0'; i++)
+            ;
+
         return i;
     }
 
-    public static String getId(String entrada){
+    public static String getId(String entrada) {
         String id;
-        if(Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 99){
+        if (Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 99) {
             id = entrada.substring(7);
-        }else if(Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 9){
+        } else if (Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 9) {
             id = entrada.substring(6);
-        }else{
+        } else {
             id = entrada.substring(5);
         }
 
         return id;
     }
 
-    public static int getOperacao(String entrada){
+    public static int getOperacao(String entrada) {
         int resp;
-        if(entrada.charAt(0) == 'I'){
-            if(entrada.charAt(1) == 'I'){
+        if (entrada.charAt(0) == 'I') {
+            if (entrada.charAt(1) == 'I') {
                 resp = 0;
-            }else if(entrada.charAt(1) == 'F'){
+            } else if (entrada.charAt(1) == 'F') {
                 resp = 1;
-            }else{
+            } else {
                 resp = 2;
             }
-        }else{
-            if(entrada.charAt(1) == 'I'){
+        } else {
+            if (entrada.charAt(1) == 'I') {
                 resp = 3;
-            }else if(entrada.charAt(1) == 'F'){
+            } else if (entrada.charAt(1) == 'F') {
                 resp = 4;
-            }else{
+            } else {
                 resp = 5;
             }
         }
@@ -638,7 +655,8 @@ public class ArvoreDeArvore {
         Personagem personagem[] = new Personagem[404];
 
         try {
-            File myObj = new File("tmp/characters.csv");
+            File myObj = new File(
+                    "C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv");
             Scanner Sc = new Scanner(myObj);
             Sc.nextLine();
 
@@ -667,42 +685,29 @@ public class ArvoreDeArvore {
 
         Scanner Sc = new Scanner(System.in);
         Arvore tree = new Arvore();
-        tree.inserir(7);
-        tree.inserir(3);
-        tree.inserir(11);
-        tree.inserir(1);
-        tree.inserir(5);
-        tree.inserir(9);
-        tree.inserir(13);
-        tree.inserir(0);
-        tree.inserir(2);
-        tree.inserir(4);
-        tree.inserir(6);
-        tree.inserir(8);
-        tree.inserir(10);
-        tree.inserir(12);
-        tree.inserir(14);
 
         String id = Sc.nextLine();
 
-        while(isFim(id)){
+        while (isFim(id)) {
             Personagem personagemAtual = getPersonagem(id, personagem);
-            if(personagemAtual != null){
-                tree.inserirPersonagem(personagemAtual);
+            if (personagemAtual != null) {
+                tree.inserir(personagemAtual);
             }
             id = Sc.nextLine();
         }
 
         String name = Sc.nextLine();
-        while(isFim(name)){
+        while (isFim(name)) {
             tree.pesquisa(name);
             name = Sc.nextLine();
         }
 
-        //tree.mostra();
         Sc.close();
     }
 }
 
-//C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv
-//tmp/characters.csv
+// test
+
+// C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds
+// 2/TP_4/TrabalhoPratico04/characters.csv
+// tmp/characters.csv
