@@ -1,4 +1,4 @@
-//package QuestoesJava.Questao01;
+package QuestoesJava.Questao02;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -366,15 +366,27 @@ class Personagem {
     }
 }
 
-class No{
+class NoFilho{
     Personagem personagem;
-    No esq, dir;
+    NoFilho esq, dir;
 
-    No(Personagem personagem){
+    NoFilho(Personagem personagem){
         this.personagem = personagem;
         esq = dir = null;
     }
 
+}
+
+class No{
+    int elemento;
+    No esq, dir;
+    NoFilho raizFilho;
+
+    No(int x){
+        this.elemento = x % 15;
+        esq = dir = null;
+        raizFilho = null;
+    }
 }
 
 class Arvore{
@@ -384,8 +396,13 @@ class Arvore{
         raiz = null; 
     }
 
-    public void inserir(Personagem personagem){
-        raiz = inserir(raiz, personagem);
+    public void inserir(int x){
+        raiz = inserir(raiz, x);
+    }
+
+    public void inserirPersonagem(Personagem personagem){
+        int place = personagem.getYearOfBirth() % 15;
+        inserirPersonagem(raiz, personagem, place);
     }
 
     public void caminharCentral(){
@@ -393,17 +410,27 @@ class Arvore{
     }
 
     public void pesquisa(String nome){
+        boolean flag;
         System.out.print(nome + " => raiz");
-        pesquisa(raiz, nome);
+        flag = pesquisa(raiz, nome);
+        if(flag){
+            System.out.println(" NAO");
+        }else{
+            System.out.println(" SIM");
+        }
     }
 
-    private No inserir(No i, Personagem personagem){
+    public void mostra(){
+        mostra(raiz);
+    }
+
+    private No inserir(No i, int x){
         if(i == null){
-            i = new No(personagem);
-        }else if(compare(personagem, i.personagem) > 0){
-            i.dir = inserir(i.dir, personagem);
-        }else if(compare(personagem, i.personagem) < 0){
-            i.esq = inserir(i.esq, personagem);
+            i = new No(x);
+        }else if(x > i.elemento){
+            i.dir = inserir(i.dir, x);
+        }else if(x < i.elemento){
+            i.esq = inserir(i.esq, x);
         }else{
             System.out.println("Erro ao inserir");
         }
@@ -411,18 +438,67 @@ class Arvore{
         return i;
     }
 
-    private void pesquisa(No i, String nome){
+    private void inserirPersonagem(No i, Personagem personagem, int place){
         if(i == null){
-            System.out.println(" NAO");
-        }else if(compare(nome, i.personagem) > 0){
-            System.out.print(" dir");
-            pesquisa(i.dir, nome);
-        }else if(compare(nome, i.personagem) < 0){
-            System.out.print(" esq");
-            pesquisa(i.esq, nome);
+            System.out.println("ERRO ao inserir personagem");
+        }else if(place > i.elemento){
+            inserirPersonagem(i.dir, personagem, place);
+        }else if(place < i.elemento){
+            inserirPersonagem(i.esq, personagem, place);
         }else{
-            System.out.println( " SIM");
+            i.raizFilho = insercao(i.raizFilho, personagem);
         }
+    }
+
+    private NoFilho insercao(NoFilho i, Personagem personagem){
+        if(i == null){
+            i = new NoFilho(personagem);
+        }else if(compare(personagem, i.personagem) > 0){
+            i.dir = insercao(i.dir, personagem);
+        }else if(compare(personagem, i.personagem) < 0){
+            i.esq = insercao(i.esq, personagem);
+        }else{
+            System.out.println("Erro ao inserir");
+        }
+
+        return i;
+    }
+
+    private boolean pesquisa(No i, String nome){
+        boolean flag = true;
+        if(i != null){
+            if(i.raizFilho != null){
+                flag = pesquisaNaSubArvore(i.raizFilho, nome);
+            }
+
+            if(flag){
+                System.out.print(" ESQ");
+                flag = pesquisa(i.esq, nome);
+            }
+            if(flag){
+                System.out.print(" DIR");
+                flag = pesquisa(i.dir, nome);
+            }
+        }
+
+        return flag;
+    }
+
+    private boolean pesquisaNaSubArvore(NoFilho i, String nome){
+        boolean flag;
+        if(i == null){
+            flag = true;
+        }else if(compare(nome, i.personagem) > 0){
+            System.out.print("->dir");
+            flag = pesquisaNaSubArvore(i.dir, nome);
+        }else if(compare(nome, i.personagem) < 0){
+            System.out.print("->esq");
+            flag = pesquisaNaSubArvore(i.esq, nome);
+        }else{
+            flag = false;
+        }
+
+        return flag;
     }
 
     private int compare(Personagem a, Personagem b) {
@@ -436,14 +512,30 @@ class Arvore{
     private void caminharCentral(No i){
         if(i != null){
             caminharCentral(i.esq);
+            System.out.println(i.elemento);
+            caminharCentral(i.dir);
+        }
+    }
+
+    private void mostra(No i){
+        if(i != null){
+            mostra(i.esq);
+            mostraPersonagensDoNo(i.raizFilho);
+            mostra(i.dir);
+        }
+    }
+
+    private void mostraPersonagensDoNo(NoFilho i){
+        if(i != null){
+            mostraPersonagensDoNo(i.esq);
             i.personagem.imprime();
             System.out.println();
-            caminharCentral(i.dir);
+            mostraPersonagensDoNo(i.dir);
         }
     }
 }
 
-public class ArvoreBinaria {
+public class ArvoreDeArvore {
 
     public static int getEndOfNumber(String entrada){
         int i;
@@ -546,7 +638,7 @@ public class ArvoreBinaria {
         Personagem personagem[] = new Personagem[404];
 
         try {
-            File myObj = new File("tmp/characters.csv");
+            File myObj = new File("//C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv");
             Scanner Sc = new Scanner(myObj);
             Sc.nextLine();
 
@@ -575,13 +667,28 @@ public class ArvoreBinaria {
 
         Scanner Sc = new Scanner(System.in);
         Arvore tree = new Arvore();
+        tree.inserir(7);
+        tree.inserir(3);
+        tree.inserir(11);
+        tree.inserir(1);
+        tree.inserir(5);
+        tree.inserir(9);
+        tree.inserir(13);
+        tree.inserir(0);
+        tree.inserir(2);
+        tree.inserir(4);
+        tree.inserir(6);
+        tree.inserir(8);
+        tree.inserir(10);
+        tree.inserir(12);
+        tree.inserir(14);
 
         String id = Sc.nextLine();
 
         while(isFim(id)){
             Personagem personagemAtual = getPersonagem(id, personagem);
             if(personagemAtual != null){
-                tree.inserir(personagemAtual);
+                tree.inserirPersonagem(personagemAtual);
             }
             id = Sc.nextLine();
         }
@@ -592,12 +699,10 @@ public class ArvoreBinaria {
             name = Sc.nextLine();
         }
 
-
+        //tree.mostra();
         Sc.close();
     }
 }
-
-//test
 
 //C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv
 //tmp/characters.csv
