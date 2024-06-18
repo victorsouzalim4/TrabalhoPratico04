@@ -1,4 +1,4 @@
-package QuestoesJava.Questao05;
+package QuestoesJava.Questao06;
 
 import java.util.Scanner;
 import java.io.File;
@@ -366,24 +366,10 @@ class Personagem {
     }
 }
 
-class Reserva {
-    Personagem[] areaReserva;
-    int tam;
-
-    Reserva(int tamanho) {
-        this.tam = tamanho;
-        areaReserva = new Personagem[tam];
-
-        for (int i = 0; i < areaReserva.length; i++) {
-            areaReserva[i] = null;
-        }
-    }
-}
 
 class Tabela {
     Personagem[] tabela;
     int tam;
-    Reserva reserva;
 
     Tabela() {
         this.tam = 21;
@@ -392,8 +378,6 @@ class Tabela {
         for (int i = 0; i < tabela.length; i++) {
             tabela[i] = null;
         }
-
-        this.reserva = new Reserva(9);
     }
 
     public void inserir(Personagem personagem) {
@@ -402,12 +386,8 @@ class Tabela {
         if (tabela[pos] == null) {
             tabela[pos] = personagem;
         } else {
-
-            for (int i = 0; i < reserva.areaReserva.length; i++) {
-                if (reserva.areaReserva[i] == null) {
-                    reserva.areaReserva[i] = personagem;
-                    i = reserva.areaReserva.length;
-                }
+            if(tabela[rehash(personagem.getName())] == null){
+                tabela[rehash(personagem.getName())] = personagem;
             }
         }
     }
@@ -420,24 +400,23 @@ class Tabela {
         return soma % tam;
     }
 
+    private int rehash(String nome){
+        int soma = 1;
+        for (int i = 0; i < nome.length(); i++) {
+            soma += nome.charAt(i);
+        }
+        return soma % tam;
+    }
+
     public void pesquisa(String nome) {
         int pos = hash(nome);
 
         if (tabela[pos] != null && tabela[pos].getName().equals(nome)) {
-            System.out.println(nome + " (Posicao: " + pos + ") SIM");
-        } else {
-            boolean flag = false;
-            for (int i = 0; i < reserva.areaReserva.length; i++) {
-                if (reserva.areaReserva[i] != null && reserva.areaReserva[i].getName().equals(nome)) {
-                    flag = true;
-                    System.out.println(nome + " (Posicao: " + (21 + i) + ") SIM");
-                    i = reserva.areaReserva.length;
-                }
-            }
-
-            if (!flag) {
-                System.out.println(nome + " NAO");
-            }
+            System.out.println(nome + " (pos: " + pos + ") SIM");
+        } else if(tabela[rehash(nome)] != null && tabela[rehash(nome)].getName().equals(nome)) {
+            System.out.println(nome + " (pos: " + rehash(nome) + ") SIM");
+        }else{
+            System.out.println(nome + " NAO");
         }
     }
 
@@ -448,17 +427,10 @@ class Tabela {
                 System.out.println();
             }
         }
-        for (int i = 0; i < reserva.tam; i++) {
-            if (reserva.areaReserva[i] != null) {
-                reserva.areaReserva[i].imprime();
-                System.out.println();
-            }
-        }
-
     }
 }
 
-public class HashReserva {
+public class HashRehash {
 
     public static Personagem getPersonagem(String id, Personagem personagem[]) {
         Personagem tmp = null;
@@ -518,7 +490,7 @@ public class HashReserva {
 
         try {
             File myObj = new File(
-                    "tmp/characters.csv");
+                    "C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv");
             Scanner Sc = new Scanner(myObj);
             Sc.nextLine();
 
@@ -564,7 +536,7 @@ public class HashReserva {
             name = Sc.nextLine();
         }
 
-        // table.mostra();
+        //table.mostra();
         Sc.close();
     }
 }

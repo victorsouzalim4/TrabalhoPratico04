@@ -656,7 +656,7 @@ public class RedBlack {
 
         try {
             File myObj = new File(
-                    "C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_4/TrabalhoPratico04/characters.csv");
+                    "tmp/characters.csv");
             Scanner Sc = new Scanner(myObj);
             Sc.nextLine();
 
@@ -708,6 +708,5 @@ public class RedBlack {
 
 // test
 
-// C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds
-// 2/TP_4/TrabalhoPratico04/characters.csv
+// C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds2/TP_4/TrabalhoPratico04/characters.csv
 // tmp/characters.csv
