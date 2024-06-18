@@ -392,6 +392,11 @@ class Arvore{
         caminharCentral(raiz);
     }
 
+    public void pesquisa(String nome){
+        System.out.print(nome + " => raiz");
+        pesquisa(raiz, nome);
+    }
+
     private No inserir(No i, Personagem personagem){
         if(i == null){
             i = new No(personagem);
@@ -406,8 +411,26 @@ class Arvore{
         return i;
     }
 
+    private void pesquisa(No i, String nome){
+        if(i == null){
+            System.out.println(" NAO");
+        }else if(compare(nome, i.personagem) > 0){
+            System.out.print(" dir");
+            pesquisa(i.dir, nome);
+        }else if(compare(nome, i.personagem) < 0){
+            System.out.print(" esq");
+            pesquisa(i.esq, nome);
+        }else{
+            System.out.println( " SIM");
+        }
+    }
+
     private int compare(Personagem a, Personagem b) {
         return a.getName().compareTo(b.getName());
+    }
+    
+    private int compare(String nome, Personagem a){
+        return nome.compareTo(a.getName());
     }
 
     private void caminharCentral(No i){
@@ -563,7 +586,13 @@ public class ArvoreBinaria {
             id = Sc.nextLine();
         }
 
-        tree.caminharCentral();
+        String name = Sc.nextLine();
+        while(isFim(name)){
+            tree.pesquisa(name);
+            name = Sc.nextLine();
+        }
+
+
         Sc.close();
     }
 }
