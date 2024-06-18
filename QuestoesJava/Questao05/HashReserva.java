@@ -399,11 +399,12 @@ class Tabela{
     public void inserir(Personagem personagem){
         int pos = hash(personagem.getName());
 
-        if(tabela[pos] != null){
+        if(tabela[pos] == null){
             tabela[pos] = personagem;
         }else{
+
             for(int i = 0; i < reserva.areaReserva.length; i++){
-                if(reserva.areaReserva[i] != null){
+                if(reserva.areaReserva[i] == null){
                     reserva.areaReserva[i] = personagem;
                     i = reserva.areaReserva.length;
                 }
@@ -416,57 +417,48 @@ class Tabela{
         for(int i = 0; i < nome.length(); i++){
             soma += nome.charAt(i);
         }
-
         return soma % tam;
+    }
+
+    public void pesquisa(String nome){
+        int pos = hash(nome);
+
+        if(tabela[pos] != null && tabela[pos].getName().equals(nome)){
+            System.out.println(nome + " (Posicao: " + pos + ") SIM");
+        }else{
+            boolean flag = false;
+            for(int i = 0; i < reserva.areaReserva.length; i++){
+                if(reserva.areaReserva[i] != null && reserva.areaReserva[i].getName().equals(nome)){
+                    flag = true;
+                    System.out.println(nome + " (Posicao: " + (21 + i) + ") SIM");
+                    i = reserva.areaReserva.length;
+                }
+            }
+
+            if(!flag){
+                System.out.println(nome + " NAO");
+            }
+        }
+    }
+
+    public void mostra(){
+        for(int i = 0; i < tam; i++){
+            if(tabela[i] != null){
+                tabela[i].imprime();
+                System.out.println();
+            }
+        }
+        for(int i = 0; i < reserva.tam; i++){
+            if(reserva.areaReserva[i] != null){
+                reserva.areaReserva[i].imprime();
+                System.out.println();
+            }
+        }
+
     }
 }
 
 public class HashReserva {
-
-    public static int getEndOfNumber(String entrada) {
-        int i;
-
-        for (i = 3; i < entrada.length() && entrada.charAt(i) != ' ' && entrada.charAt(i) != '\0'; i++)
-            ;
-
-        return i;
-    }
-
-    public static String getId(String entrada) {
-        String id;
-        if (Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 99) {
-            id = entrada.substring(7);
-        } else if (Integer.parseInt(entrada.substring(3, getEndOfNumber(entrada))) > 9) {
-            id = entrada.substring(6);
-        } else {
-            id = entrada.substring(5);
-        }
-
-        return id;
-    }
-
-    public static int getOperacao(String entrada) {
-        int resp;
-        if (entrada.charAt(0) == 'I') {
-            if (entrada.charAt(1) == 'I') {
-                resp = 0;
-            } else if (entrada.charAt(1) == 'F') {
-                resp = 1;
-            } else {
-                resp = 2;
-            }
-        } else {
-            if (entrada.charAt(1) == 'I') {
-                resp = 3;
-            } else if (entrada.charAt(1) == 'F') {
-                resp = 4;
-            } else {
-                resp = 5;
-            }
-        }
-
-        return resp;
-    }
 
     public static Personagem getPersonagem(String id, Personagem personagem[]) {
         Personagem tmp = null;
@@ -566,17 +558,17 @@ public class HashReserva {
             id = Sc.nextLine();
         }
 
-        /*String name = Sc.nextLine();
+        String name = Sc.nextLine();
         while (isFim(name)) {
-            //table.pesquisa(name);
+            table.pesquisa(name);
             name = Sc.nextLine();
-        }*/
+        }
 
+        //table.mostra();
         Sc.close();
     }
 }
 
-// test
 
 // C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds
 // 2/TP_4/TrabalhoPratico04/characters.csv
