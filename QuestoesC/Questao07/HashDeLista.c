@@ -39,109 +39,6 @@ typedef struct{
 
 
 
-
-
-
-typedef struct No{
-    Personagem personagem;
-    struct No* dir;
-    struct No* esq;
-}No;
-
-No* construtorNo(Personagem personagem){
-    No* i = (No*) malloc(sizeof(No));
-    i->personagem = personagem;
-    i->dir = i->esq = NULL;
-
-    return i;
-}
-
-typedef struct Arvore{
-    No* raiz;
-}Arvore;
-
-Arvore* arvoreConstrutor(){
-    Arvore* i = (Arvore*) malloc(sizeof(Arvore));
-    i->raiz = NULL;
-
-    return i;
-}
-
-int compare(Personagem a, Personagem b){
-    return strcmp(a.name, b.name);
-} 
-
-int comparar(char nome[], Personagem b){
-    return strcmp(nome, b.name);
-} 
-
-No* rotacaoDir(No* i){
-        No* tmp = i->esq;
-        i->esq = tmp->dir;
-        tmp->dir = i;
-
-        return tmp;
-    }
-
-No* rotacaoEsq(No* i){
-        No* tmp = i->dir;
-        i->dir = tmp->esq;
-        tmp->esq = i;
-
-        return tmp;
-    }
-
-int getAltura(No* i){
-    if(i == NULL){
-        return -1;
-    }
-    int alturaEsq = getAltura(i->esq) + 1;
-    int alturaDir = getAltura(i->dir) + 1;
-
-    int altura = (alturaEsq > alturaDir ? alturaEsq : alturaDir);
-    return altura; 
-}
-
-int getFator(No* i){
-
-        int alturaEsq = getAltura(i->esq) + 1;
-        int alturaDir = getAltura(i->dir) + 1;
-
-        return (alturaDir - alturaEsq);
-
-}
-
-No* inserir(No* i, Personagem personagem){
-    if(i == NULL){
-        i = construtorNo(personagem);
-    }else if(compare(personagem, i->personagem) > 0){
-        i->dir = inserir(i->dir, personagem);
-    }else if(compare(personagem, i->personagem) < 0){
-        i->esq = inserir(i->esq, personagem);
-    }else{
-        printf("ERRO, VALOR INVALIDO");
-    }
-
-    if(getFator(i) == -2){
-            if(getFator(i->esq) == 1){
-                i->esq = rotacaoEsq(i->esq); 
-            }
-            i = rotacaoDir(i);
-
-        }else if(getFator(i) == 2){
-            if(getFator(i->dir) == -1){
-                i->dir = rotacaoDir(i->dir);
-            }
-            i = rotacaoEsq(i);
-        }
-
-
-
-    return i;
-
-
-}
-
 void imprime(Personagem personagem){
     printf("[%s ## ", personagem.id);
        printf("%s ## ", personagem.name);
@@ -203,27 +100,129 @@ void imprime(Personagem personagem){
        
 }
 
-void pesquisa(No* i, char nome[]){
-    if(i == NULL){
-        printf(" NAO\n");
-    }else if(comparar(nome, i->personagem) > 0){
-        printf(" dir");
-        pesquisa(i->dir, nome);
-    }else if(comparar(nome, i->personagem) < 0){
-        printf(" esq");
-        pesquisa(i->esq, nome);
-    }else{
-        printf( " SIM\n");
+
+
+
+
+typedef struct Celula{
+    Personagem personagem;
+    struct Celula* prox;
+
+}Celula;
+
+Celula* construtorCelulaPrimeira(){
+    Celula* tmp = (Celula*) malloc(sizeof(Celula));
+    tmp->prox = NULL;
+
+    return tmp;
+}
+
+Celula* construtorCelula(Personagem personagem){
+    Celula* tmp = (Celula*) malloc(sizeof(Celula));
+    tmp->personagem = personagem;
+    tmp->prox = NULL;
+
+
+    return tmp;
+}
+
+typedef struct Lista{
+    Celula* primeira;
+    Celula* ultimo;
+
+}Lista;
+
+Lista* construtorLista(){
+    Lista* lista = (Lista*) malloc(sizeof(Lista));
+
+    lista->primeira = construtorCelulaPrimeira();
+    lista->ultimo = lista->primeira;
+
+    return lista;
+}
+
+void inserirLista(Lista* lista, Personagem personagem){
+
+    lista->ultimo->prox = construtorCelula(personagem);
+    lista->ultimo = lista->ultimo->prox;
+
+    
+}
+
+void mostrar(Lista *lista) {
+    for (Celula *i = lista->primeira->prox; i != NULL; i = i->prox) {
+        imprime(i->personagem);
+        printf("\n");
     }
 }
 
-void caminharCentral(No* i){
-    if(i != NULL){
-        caminharCentral(i->esq);
-        imprime(i->personagem);
-        caminharCentral(i->dir);
+
+
+typedef struct Tabela{
+    Lista* lista[21];
+}Tabela;
+
+Tabela* construtorTabela(){
+    Tabela* tabela = (Tabela*) malloc(sizeof(Tabela));
+
+    for(int i = 0; i < 21; i++){
+        tabela->lista[i] = construtorLista();
+    }
+
+    return tabela;
+}
+
+int hash(char nome[]){
+    int soma = 0;
+
+    for(int i = 0; i < strlen(nome); i++){
+        soma += nome[i];
+    }
+
+    return soma % 21;
+}
+
+
+void inserir(Tabela* table, Personagem personagem){
+    int pos = hash(personagem.name);
+    inserirLista(table->lista[pos], personagem);
+}
+
+void mostra(Tabela *table) {
+    for (int i = 0; i < 21; i++) {
+        if (table->lista[i]->primeira->prox != NULL) {
+            mostrar(table->lista[i]);
+        }
     }
 }
+
+int compara(char nome[], Personagem a){
+    return strcmp(nome, a.name);
+}
+
+bool pesquisaLista(Lista* lista, char nome[]){
+        bool flag = false;
+        for(Celula* i = lista->primeira; i != NULL; i = i->prox){
+            if(compara(nome, i->personagem) == 0){
+                flag = true;
+                i = lista->ultimo;
+            }
+        }
+        return flag;
+}
+
+void pesquisa(Tabela* table, char nome[]){
+    if(pesquisaLista(table->lista[hash(nome)], nome)){
+        printf(" (pos: %d) SIM\n", hash(nome));
+    }
+    else {
+        printf(" NAO\n");
+    }
+    
+}
+
+
+
 
 
 
@@ -708,7 +707,7 @@ bool isFim(char str[]){
 
 int main(){
 
-    FILE *arq = fopen("tmp/characters.csv", "r");
+    FILE *arq = fopen("C:/Users/Victor/Documents/FACULDADE/2 semestre/Aeds 2/TP_3/Trabalho_Pratico3/characters.csv", "r");
     char linha[1000];
     char atributos[18][1000];
     char apelidos[10][150];
@@ -733,7 +732,7 @@ int main(){
 
   
     char id[100];
-    Arvore* tree = arvoreConstrutor();
+    Tabela* table = construtorTabela();
 
     
     scanf("%99[^\n]%*c", id);
@@ -743,7 +742,7 @@ int main(){
     while(isFim(id)){
         Personagem personagemAtual = getPersonagem(personagens, id);
         if(personagemAtual.yearOfBirth !=  0){
-            tree->raiz = inserir(tree->raiz, personagemAtual);
+            inserir(table, personagemAtual);
         }
         scanf("%99[^\n]%*c", id);
         id[strcspn(id, "\r")] = '\0';
@@ -756,14 +755,15 @@ int main(){
 
     while(isFim(nome)){
 
-        printf("%s => raiz", nome);
-        pesquisa(tree->raiz, nome);
+        printf("%s", nome);
+        pesquisa(table, nome);
 
         scanf("%99[^\n]%*c", nome);
         nome[strcspn(nome, "\r")] = '\0';
     }
 
-    printf("%d", getAltura(tree->raiz));
+   //mostra(table);
+
 
 
 }
